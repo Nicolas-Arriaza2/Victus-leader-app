@@ -22,6 +22,7 @@ export type ActivitiesStackParamList = {
   SessionEdit: { sessionId: string; activityId: string };
   Enrollments: { sessionId: string; sessionDate?: string };
   Subscribers: { activityId: string; activityTitle: string };
+  CheckIn: { sessionId: string };
 };
 
 // ─── Earnings Stack ───────────────────────────────────────────────────────────

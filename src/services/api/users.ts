@@ -4,6 +4,7 @@ import apiClient from './client';
 export interface UpdateProfileDto {
   firstName?: string;
   lastName?: string;
+  username?: string;
   bio?: string;
   gender?: string;
   birthDate?: string;

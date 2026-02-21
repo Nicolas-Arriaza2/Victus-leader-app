@@ -1,6 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  TextInput,
+  Text,
+  View,
+} from 'react-native';
 import { activitiesApi } from '../../services/api/activities';
 import { Activity } from '../../types/api';
 import { ActivitiesStackScreenProps } from '../../navigation/types';
@@ -15,13 +23,14 @@ export function ActivitiesListScreen({ navigation }: ActivitiesStackScreenProps<
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [search, setSearch] = useState('');
 
   const load = useCallback(async () => {
     try {
       const { data } = await activitiesApi.mine();
       setActivities(data);
     } catch {
-      // handle error
+      // ignore
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -30,7 +39,16 @@ export function ActivitiesListScreen({ navigation }: ActivitiesStackScreenProps<
 
   useEffect(() => { load(); }, [load]);
 
-  const onRefresh = () => { setRefreshing(true); load(); };
+  const filtered = useMemo(() => {
+    if (!search.trim()) return activities;
+    const q = search.toLowerCase();
+    return activities.filter(
+      (a) =>
+        a.title.toLowerCase().includes(q) ||
+        (a.description ?? '').toLowerCase().includes(q) ||
+        (ACTIVITY_TYPE_LABELS[a.type] ?? a.type).toLowerCase().includes(q),
+    );
+  }, [activities, search]);
 
   if (loading) {
     return (
@@ -42,16 +60,35 @@ export function ActivitiesListScreen({ navigation }: ActivitiesStackScreenProps<
 
   return (
     <View className="flex-1 bg-cream">
+      {/* Barra de búsqueda */}
+      <View className="px-4 pt-3 pb-1">
+        <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-3 gap-2">
+          <Ionicons name="search-outline" size={18} color="#9ca3af" />
+          <TextInput
+            className="flex-1 py-3 text-gray-900 text-sm"
+            placeholder="Buscar actividades..."
+            value={search}
+            onChangeText={setSearch}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+          />
+        </View>
+      </View>
+
       <FlatList
-        data={activities}
+        data={filtered}
         keyExtractor={(item) => item.id}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2D7E34" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#2D7E34" />}
         contentContainerClassName="p-4 gap-3"
         ListEmptyComponent={
           <View className="items-center justify-center py-20">
             <Ionicons name="calendar-outline" size={48} color="#9ca3af" />
-            <Text className="text-gray-400 mt-3 text-base">Sin actividades todavía</Text>
-            <Text className="text-gray-400 text-sm mt-1">Toca + para crear tu primera actividad</Text>
+            <Text className="text-gray-400 mt-3 text-base">
+              {search ? 'Sin resultados' : 'Sin actividades todavía'}
+            </Text>
+            {!search && (
+              <Text className="text-gray-400 text-sm mt-1">Toca + para crear tu primera actividad</Text>
+            )}
           </View>
         }
         renderItem={({ item }) => (
@@ -77,11 +114,10 @@ export function ActivitiesListScreen({ navigation }: ActivitiesStackScreenProps<
                 {item.description}
               </Text>
             ) : null}
-            {/* Interests */}
             {item.interests.length > 0 && (
               <View className="flex-row flex-wrap gap-1 mt-2">
                 {item.interests.slice(0, 3).map(({ interest }) => (
-                  <View key={interest.id} className="bg-cream-100 px-2 py-0.5 rounded-full">
+                  <View key={interest.id} className="bg-cream px-2 py-0.5 rounded-full border border-gray-200">
                     <Text className="text-xs text-gray-600">{interest.name}</Text>
                   </View>
                 ))}

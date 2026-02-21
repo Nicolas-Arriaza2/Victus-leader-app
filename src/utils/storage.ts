@@ -33,4 +33,12 @@ export const storage = {
   async clear(): Promise<void> {
     await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY]);
   },
+
+  async setItem(key: string, value: string): Promise<void> {
+    await AsyncStorage.setItem(key, value);
+  },
+
+  async getItem(key: string): Promise<string | null> {
+    return AsyncStorage.getItem(key);
+  },
 };

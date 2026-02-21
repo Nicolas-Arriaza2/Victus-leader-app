@@ -19,6 +19,7 @@ import { SessionDetailScreen } from '../screens/sessions/SessionDetailScreen';
 import { SessionEditScreen } from '../screens/sessions/SessionEditScreen';
 import { SessionListScreen } from '../screens/sessions/SessionListScreen';
 import { SubscribersScreen } from '../screens/subscriptions/SubscribersScreen';
+import { CheckInScreen } from '../screens/sessions/CheckInScreen';
 import { NotificationBadgeProvider, useNotificationBadge } from '../context/NotificationBadgeContext';
 
 import {
@@ -47,6 +48,7 @@ function ActivitiesStackNavigator() {
       <ActivitiesStack.Screen name="SessionEdit" component={SessionEditScreen} options={{ title: 'Editar Sesión' }} />
       <ActivitiesStack.Screen name="Enrollments" component={EnrollmentsScreen} options={{ title: 'Inscritos' }} />
       <ActivitiesStack.Screen name="Subscribers" component={SubscribersScreen} options={({ route }) => ({ title: `Suscriptores · ${route.params.activityTitle}` })} />
+      <ActivitiesStack.Screen name="CheckIn" component={CheckInScreen} options={{ title: 'Check-in QR', headerShown: false }} />
     </ActivitiesStack.Navigator>
   );
 }

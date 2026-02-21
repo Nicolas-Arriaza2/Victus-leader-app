@@ -8,11 +8,13 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AuthProvider } from './src/context/AuthContext';
 import { useAuth } from './src/hooks/useAuth';
+import { usePushNotifications } from './src/hooks/usePushNotifications';
 import { AuthNavigator } from './src/navigation/AuthNavigator';
 import { MainNavigator } from './src/navigation/MainNavigator';
 
 function RootNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
+  usePushNotifications();
 
   if (isLoading) {
     return (

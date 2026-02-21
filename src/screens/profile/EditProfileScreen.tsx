@@ -26,6 +26,7 @@ export function EditProfileScreen({ navigation }: ProfileStackScreenProps<'EditP
 
   const [firstName, setFirstName] = useState(user?.profile?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.profile?.lastName ?? '');
+  const [username, setUsername] = useState(user?.username ?? '');
   const [bio, setBio] = useState(user?.profile?.bio ?? '');
   const [gender, setGender] = useState<Gender | null>(
     (user?.profile?.gender as Gender) ?? null,
@@ -42,6 +43,7 @@ export function EditProfileScreen({ navigation }: ProfileStackScreenProps<'EditP
       await usersApi.updateProfile({
         firstName: firstName.trim(),
         lastName: lastName.trim() || undefined,
+        username: username.trim() || undefined,
         bio: bio.trim() || undefined,
         gender: gender ?? undefined,
       });
@@ -91,6 +93,21 @@ export function EditProfileScreen({ navigation }: ProfileStackScreenProps<'EditP
             autoCapitalize="words"
             returnKeyType="next"
           />
+        </View>
+
+        {/* Username */}
+        <View>
+          <Text className="text-sm font-medium text-gray-700 mb-1">Nombre de usuario</Text>
+          <TextInput
+            className="border border-gray-300 rounded-xl px-4 py-3 text-gray-900 text-base bg-white"
+            value={username}
+            onChangeText={(t) => setUsername(t.toLowerCase().replace(/[^a-z0-9_.]/g, ''))}
+            placeholder="ej: valentina_yoga"
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="next"
+          />
+          <Text className="text-xs text-gray-400 mt-1">Solo letras minúsculas, números, puntos y guiones bajos</Text>
         </View>
 
         {/* Bio */}

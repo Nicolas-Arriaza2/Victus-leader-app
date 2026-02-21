@@ -118,6 +118,15 @@ export function SessionDetailScreen({ route, navigation }: ActivitiesStackScreen
         <Ionicons name="people-outline" size={20} color="white" />
       </Pressable>
 
+      {/* Check-in QR */}
+      <Pressable
+        className="bg-secondary-500 mx-4 mt-3 rounded-2xl p-4 flex-row items-center justify-between"
+        onPress={() => navigation.navigate('CheckIn', { sessionId })}
+      >
+        <Text className="text-white font-semibold">Escanear QR · Check-in</Text>
+        <Ionicons name="qr-code-outline" size={20} color="white" />
+      </Pressable>
+
       <View className="h-8" />
     </ScrollView>
   );

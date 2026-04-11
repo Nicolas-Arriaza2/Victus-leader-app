@@ -21,7 +21,12 @@ export interface UserProfile {
   bio: string | null;
   avatarUrl: string | null;
   gender: Gender | null;
+  genderDetails: string[];
+  sexualOrientation: string[];
+  showGender: boolean;
+  showOrientation: boolean;
   birthDate: string | null;
+  city: string | null;
 }
 
 export interface User {

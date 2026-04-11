@@ -144,9 +144,19 @@ function SwipeCard({
             {candidate.profile?.bio ? (
               <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 13, marginTop: 6 }} numberOfLines={2}>{candidate.profile.bio}</Text>
             ) : null}
+            {/* Orientation (if visible) */}
+            {candidate.profile?.showOrientation && (candidate.profile?.sexualOrientation?.length ?? 0) > 0 && (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                {candidate.profile.sexualOrientation.slice(0, 2).map((o) => (
+                  <View key={o} style={{ backgroundColor: 'rgba(234,88,12,0.75)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 }}>
+                    <Text style={{ color: '#fff', fontSize: 11, fontWeight: '500' }}>{o}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
             {candidate.interests.length > 0 && (
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 8 }}>
-                {candidate.interests.slice(0, 4).map((ui) => (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                {candidate.interests.slice(0, 3).map((ui) => (
                   <View key={ui.interest.id} style={{ backgroundColor: 'rgba(45,126,52,0.85)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 }}>
                     <Text style={{ color: '#fff', fontSize: 11, fontWeight: '600' }}>{ui.interest.name}</Text>
                   </View>

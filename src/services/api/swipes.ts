@@ -11,6 +11,8 @@ export interface SwipeCandidate {
     avatarUrl: string | null;
     bio: string | null;
     city: string | null;
+    sexualOrientation: string[];
+    showOrientation: boolean;
   } | null;
   interests: { interest: { id: string; name: string; slug: string } }[];
   photos: { url: string; position: number }[];

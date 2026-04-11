@@ -23,6 +23,10 @@ interface FullProfile {
     bio: string | null;
     avatarUrl: string | null;
     city: string | null;
+    genderDetails: string[];
+    sexualOrientation: string[];
+    showGender: boolean;
+    showOrientation: boolean;
   } | null;
   photos: { id: string; url: string; position: number }[];
   interests: { interest: { name: string; slug: string } }[];
@@ -144,6 +148,34 @@ export function ProfilePreviewScreen(_props: ProfileStackScreenProps<'ProfilePre
             {profile.profile.bio}
           </Text>
         ) : null}
+
+        {/* Gender details */}
+        {profile?.profile?.showGender && (profile?.profile?.genderDetails?.length ?? 0) > 0 && (
+          <View style={{ marginBottom: 12 }}>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#9ca3af', letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 6 }}>Género</Text>
+            <View className="flex-row flex-wrap gap-2">
+              {profile.profile.genderDetails.map((d) => (
+                <View key={d} style={{ backgroundColor: '#fdf4ff', borderWidth: 1, borderColor: '#e9d5ff', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 }}>
+                  <Text style={{ color: '#7c3aed', fontSize: 13, fontWeight: '500' }}>{d}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Orientation */}
+        {profile?.profile?.showOrientation && (profile?.profile?.sexualOrientation?.length ?? 0) > 0 && (
+          <View style={{ marginBottom: 12 }}>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#9ca3af', letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 6 }}>Orientación</Text>
+            <View className="flex-row flex-wrap gap-2">
+              {profile.profile.sexualOrientation.map((o) => (
+                <View key={o} style={{ backgroundColor: '#fff7ed', borderWidth: 1, borderColor: '#fed7aa', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 }}>
+                  <Text style={{ color: '#ea580c', fontSize: 13, fontWeight: '500' }}>{o}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
 
         {profile?.interests && profile.interests.length > 0 && (
           <View className="flex-row flex-wrap gap-2 mb-6">

@@ -13,6 +13,7 @@ import {
   View,
 } from 'react-native';
 import apiClient from '../../services/api/client';
+import { useAuth } from '../../hooks/useAuth';
 import { usersApi } from '../../services/api/users';
 import { UserPhoto } from '../../types/api';
 import { ProfileStackScreenProps } from '../../navigation/types';
@@ -22,6 +23,7 @@ const PHOTO_SIZE = (width - 48) / 3;
 const MAX_PHOTOS = 3;
 
 export function PhotosScreen(_props: ProfileStackScreenProps<'Photos'>) {
+  const { refreshUser } = useAuth();
   const [photos, setPhotos] = useState<UserPhoto[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -70,7 +72,7 @@ export function PhotosScreen(_props: ProfileStackScreenProps<'Photos'>) {
       await apiClient.post('/users/me/photos', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      await load();
+      await Promise.all([load(), refreshUser()]);
     } catch (err: any) {
       const msg = err?.response?.data?.message ?? 'Error al subir la foto';
       Alert.alert('Error', Array.isArray(msg) ? msg.join('\n') : msg);
@@ -88,7 +90,7 @@ export function PhotosScreen(_props: ProfileStackScreenProps<'Photos'>) {
         onPress: async () => {
           try {
             await usersApi.deletePhoto(photo.position);
-            await load();
+            await Promise.all([load(), refreshUser()]);
           } catch {
             Alert.alert('Error', 'No se pudo eliminar la foto.');
           }

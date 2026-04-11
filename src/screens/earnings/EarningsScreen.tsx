@@ -5,8 +5,9 @@ import { paymentsApi } from '../../services/api/payments';
 import { LeaderEarnings, TransferSchedule } from '../../types/api';
 import { EarningsStackScreenProps } from '../../navigation/types';
 
-function formatCLP(amount: string) {
-  return `$${parseFloat(amount).toLocaleString('es-CL')}`;
+function formatCLP(amount: string | number | null | undefined) {
+  const n = parseFloat(String(amount ?? 0));
+  return `$${(isNaN(n) ? 0 : n).toLocaleString('es-CL')}`;
 }
 
 function formatDate(iso: string) {

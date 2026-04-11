@@ -22,7 +22,7 @@ const GENDERS: { label: string; value: Gender }[] = [
 ];
 
 export function EditProfileScreen({ navigation }: ProfileStackScreenProps<'EditProfile'>) {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, updateUser } = useAuth();
 
   const [firstName, setFirstName] = useState(user?.profile?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.profile?.lastName ?? '');
@@ -47,7 +47,18 @@ export function EditProfileScreen({ navigation }: ProfileStackScreenProps<'EditP
         bio: bio.trim() || undefined,
         gender: gender ?? undefined,
       });
-      await refreshUser();
+      // Actualizar contexto inmediatamente sin esperar al API
+      updateUser({
+        username: username.trim() || user?.username,
+        profile: {
+          ...user?.profile,
+          firstName: firstName.trim(),
+          lastName: lastName.trim() || null,
+          bio: bio.trim() || null,
+          gender: gender,
+        },
+      });
+      refreshUser(); // sincronizar en segundo plano
       navigation.goBack();
     } catch (err: any) {
       const msg = err?.response?.data?.message ?? 'Error al guardar';

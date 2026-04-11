@@ -17,6 +17,7 @@ interface AuthContextValue extends AuthState {
   register: (dto: RegisterDto) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  updateUser: (patch: Partial<User>) => void;
 }
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -77,8 +78,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setState((prev) => ({ ...prev, user }));
   }, []);
 
+  const updateUser = useCallback((patch: Partial<User>) => {
+    setState((prev) => {
+      if (!prev.user) return prev;
+      const updated: User = {
+        ...prev.user,
+        ...patch,
+        profile: patch.profile
+          ? { ...prev.user.profile, ...patch.profile } as User['profile']
+          : prev.user.profile,
+      };
+      storage.setUser(updated);
+      return { ...prev, user: updated };
+    });
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout, refreshUser, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -13,6 +13,7 @@ import { NotificationsScreen } from '../screens/notifications/NotificationsScree
 import { BankInfoScreen } from '../screens/profile/BankInfoScreen';
 import { EditProfileScreen } from '../screens/profile/EditProfileScreen';
 import { PhotosScreen } from '../screens/profile/PhotosScreen';
+import { ProfilePreviewScreen } from '../screens/profile/ProfilePreviewScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 import { SessionCreateScreen } from '../screens/sessions/SessionCreateScreen';
 import { SessionDetailScreen } from '../screens/sessions/SessionDetailScreen';
@@ -85,6 +86,7 @@ function ProfileStackNavigator() {
       <ProfileStack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: 'Editar Perfil' }} />
       <ProfileStack.Screen name="BankInfo" component={BankInfoScreen} options={{ title: 'Datos Bancarios' }} />
       <ProfileStack.Screen name="Photos" component={PhotosScreen} options={{ title: 'Mis Fotos' }} />
+      <ProfileStack.Screen name="ProfilePreview" component={ProfilePreviewScreen} options={{ title: 'Vista previa', headerTransparent: true, headerTintColor: 'white' }} />
     </ProfileStack.Navigator>
   );
 }

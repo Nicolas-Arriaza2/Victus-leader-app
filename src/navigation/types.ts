@@ -44,6 +44,7 @@ export type ProfileStackParamList = {
   EditProfile: undefined;
   BankInfo: undefined;
   Photos: undefined;
+  ProfilePreview: undefined;
 };
 
 // ─── Main Tabs ────────────────────────────────────────────────────────────────

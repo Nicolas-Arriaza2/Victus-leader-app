@@ -1,6 +1,8 @@
+import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
+import { notificationsApi } from '../services/api/notifications';
 import { storage } from '../utils/storage';
 
 // Configura cómo se muestran las notificaciones cuando la app está en primer plano
@@ -30,27 +32,36 @@ async function registerForPushNotificationsAsync(): Promise<string | null> {
 
   if (finalStatus !== 'granted') return null;
 
-  const { data: token } = await Notifications.getExpoPushTokenAsync();
+  const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+  const { data: token } = await Notifications.getExpoPushTokenAsync(
+    projectId ? { projectId } : undefined,
+  );
   return token;
 }
 
 /**
  * Registra el dispositivo para push notifications al montar.
- * Guarda el token en AsyncStorage con clave @victus:pushToken.
- * El token se enviará al backend cuando el endpoint esté disponible
- * (ver PENDIENTES_BACKEND.md).
+ * Obtiene el token de Expo, lo guarda en AsyncStorage y lo envía al backend
+ * para que el servidor pueda enviar notificaciones reales al dispositivo.
  */
 export function usePushNotifications() {
   useEffect(() => {
     registerForPushNotificationsAsync()
       .then(async (token) => {
         if (!token) return;
-        // Guardar localmente — backend endpoint pendiente
+
+        // Guardar localmente para evitar re-registros innecesarios
+        const saved = await storage.getItem('@victus:pushToken');
+        if (saved === token) return; // ya registrado y no cambió
+
         await storage.setItem('@victus:pushToken', token);
-        // TODO: cuando exista el endpoint, llamar:
-        // await apiClient.post('/notifications/push-token', { token });
+
+        // Enviar token al backend para que pueda enviar pushes reales
+        await notificationsApi.registerPushToken(token);
       })
-      .catch(() => {});
+      .catch(() => {
+        // No crashear si falla el registro (permisos denegados, sin red, etc.)
+      });
 
     // Listener para notificaciones recibidas en primer plano
     const sub = Notifications.addNotificationReceivedListener(() => {

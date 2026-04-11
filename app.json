@@ -25,6 +25,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7bf6ac27-3743-4685-9142-59aea97d69d8"
+      }
+    },
+    "owner": "nicolasarriaza"
   }
 }

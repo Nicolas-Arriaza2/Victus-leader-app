@@ -20,11 +20,15 @@ export function NotificationsScreen(_props: NotificationsStackScreenProps<'Notif
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
+    setError(null);
     try {
       const { data } = await notificationsApi.mine();
       setNotifications(data);
+    } catch (e: any) {
+      setError(e?.response?.data?.message ?? 'No se pudieron cargar las notificaciones');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -64,8 +68,8 @@ export function NotificationsScreen(_props: NotificationsStackScreenProps<'Notif
       contentContainerClassName="p-4 gap-2"
       ListEmptyComponent={
         <View className="items-center justify-center py-20">
-          <Ionicons name="notifications-outline" size={48} color="#9ca3af" />
-          <Text className="text-gray-400 mt-3">Sin notificaciones</Text>
+          <Ionicons name={error ? 'alert-circle-outline' : 'notifications-outline'} size={48} color="#9ca3af" />
+          <Text className="text-gray-400 mt-3">{error ?? 'Sin notificaciones'}</Text>
         </View>
       }
       renderItem={({ item }) => (

@@ -13,4 +13,7 @@ export const notificationsApi = {
 
   registerPushToken: (token: string) =>
     apiClient.post('/notifications/push-token', { token }),
+
+  markAllRead: () =>
+    apiClient.patch('/notifications/mark-all-read'),
 };

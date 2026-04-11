@@ -27,8 +27,8 @@ export interface CompatibilityStats {
 }
 
 export const swipesApi = {
-  discover: () =>
-    apiClient.get<SwipeCandidate[]>('/swipes/discover'),
+  discover: (params?: Record<string, string>) =>
+    apiClient.get<SwipeCandidate[]>('/swipes/discover', { params }),
 
   swipe: (toUserId: string, action: SwipeAction, sessionId?: string) =>
     apiClient.post<SwipeResult>('/swipes', { toUserId, action, sessionId }),

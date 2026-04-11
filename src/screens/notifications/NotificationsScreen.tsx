@@ -4,7 +4,7 @@ import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } fr
 import { notificationsApi } from '../../services/api/notifications';
 import { useNotificationBadge } from '../../context/NotificationBadgeContext';
 import { Notification } from '../../types/api';
-import { NotificationsStackScreenProps } from '../../navigation/types';
+import { ProfileStackScreenProps } from '../../navigation/types';
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -15,7 +15,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(hrs / 24)}d`;
 }
 
-export function NotificationsScreen(_props: NotificationsStackScreenProps<'Notifications'>) {
+export function NotificationsScreen(_props: ProfileStackScreenProps<'Notifications'>) {
   const { fetchUnread } = useNotificationBadge();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +35,13 @@ export function NotificationsScreen(_props: NotificationsStackScreenProps<'Notif
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    // Mark all as read when screen opens, then refresh badge
+    notificationsApi.markAllRead()
+      .then(() => fetchUnread())
+      .catch(() => {});
+  }, [load, fetchUnread]);
 
   const onRefresh = () => { setRefreshing(true); load(); };
 

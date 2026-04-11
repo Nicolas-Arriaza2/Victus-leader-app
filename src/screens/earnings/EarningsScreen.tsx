@@ -62,7 +62,7 @@ export function EarningsScreen(_props: EarningsStackScreenProps<'Earnings'>) {
               <Text className="text-white text-4xl font-bold mt-1">
                 {formatCLP(earnings.totalEarnings)}
               </Text>
-              <Text className="text-primary-200 text-xs mt-2">CLP · Comisión 10% descontada</Text>
+              <Text className="text-primary-200 text-xs mt-2">CLP</Text>
             </View>
 
             {/* Sub cards */}

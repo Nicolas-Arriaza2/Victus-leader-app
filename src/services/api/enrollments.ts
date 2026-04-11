@@ -10,4 +10,7 @@ export const enrollmentsApi = {
 
   updateStatus: (id: string, status: 'confirmed' | 'attended') =>
     apiClient.patch<ActivityEnrollment>(`/enrollments/${id}/status`, { status }),
+
+  markPaid: (id: string, paid: boolean) =>
+    apiClient.patch<ActivityEnrollment>(`/enrollments/${id}/mark-paid`, { paid }),
 };

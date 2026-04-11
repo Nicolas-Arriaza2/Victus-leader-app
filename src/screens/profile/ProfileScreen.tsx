@@ -56,10 +56,11 @@ export function ProfileScreen({ navigation }: ProfileStackScreenProps<'Profile'>
       {/* Menu */}
       <View className="mx-4 mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {[
-          { label: 'Editar Perfil',         icon: 'person-outline',   screen: 'EditProfile'    as const },
-          { label: 'Datos Bancarios',       icon: 'card-outline',     screen: 'BankInfo'       as const },
-          { label: 'Mis Fotos',             icon: 'images-outline',   screen: 'Photos'         as const },
-          { label: 'Ver cómo me ven',       icon: 'eye-outline',      screen: 'ProfilePreview' as const },
+          { label: 'Editar Perfil',         icon: 'person-outline',      screen: 'EditProfile'    as const },
+          { label: 'Mis Fotos',             icon: 'images-outline',      screen: 'Photos'         as const },
+          { label: 'Ver cómo me ven',       icon: 'eye-outline',         screen: 'ProfilePreview' as const },
+          { label: 'Ganancias',             icon: 'cash-outline',        screen: 'Earnings'       as const },
+          { label: 'Datos Bancarios',       icon: 'card-outline',        screen: 'BankInfo'       as const },
         ].map((item, idx) => (
           <Pressable
             key={item.screen}

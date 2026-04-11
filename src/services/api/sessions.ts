@@ -29,4 +29,7 @@ export const sessionsApi = {
 
   update: (id: string, dto: UpdateSessionDto) =>
     apiClient.patch<ActivitySession>(`/sessions/${id}`, dto),
+
+  notifyPaymentReminder: (id: string) =>
+    apiClient.post<{ notified: number }>(`/sessions/${id}/notify-payment-reminder`),
 };

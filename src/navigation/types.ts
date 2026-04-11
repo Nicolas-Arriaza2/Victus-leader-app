@@ -9,6 +9,13 @@ export type AuthStackParamList = {
   Register: undefined;
 };
 
+// ─── Swipe Stack ──────────────────────────────────────────────────────────────
+
+export type SwipeStackParamList = {
+  Discover: undefined;
+  CompatibilityStats: undefined;
+};
+
 // ─── Activities Stack ─────────────────────────────────────────────────────────
 
 export type ActivitiesStackParamList = {
@@ -25,18 +32,6 @@ export type ActivitiesStackParamList = {
   CheckIn: { sessionId: string };
 };
 
-// ─── Earnings Stack ───────────────────────────────────────────────────────────
-
-export type EarningsStackParamList = {
-  Earnings: undefined;
-};
-
-// ─── Notifications Stack ──────────────────────────────────────────────────────
-
-export type NotificationsStackParamList = {
-  Notifications: undefined;
-};
-
 // ─── Profile Stack ────────────────────────────────────────────────────────────
 
 export type ProfileStackParamList = {
@@ -45,14 +40,15 @@ export type ProfileStackParamList = {
   BankInfo: undefined;
   Photos: undefined;
   ProfilePreview: undefined;
+  Earnings: undefined;
+  Notifications: undefined;
 };
 
 // ─── Main Tabs ────────────────────────────────────────────────────────────────
 
 export type MainTabParamList = {
+  SwipeTab: undefined;
   ActivitiesTab: undefined;
-  EarningsTab: undefined;
-  NotificationsTab: undefined;
   ProfileTab: undefined;
 };
 
@@ -61,14 +57,11 @@ export type MainTabParamList = {
 export type AuthStackScreenProps<T extends keyof AuthStackParamList> =
   NativeStackScreenProps<AuthStackParamList, T>;
 
+export type SwipeStackScreenProps<T extends keyof SwipeStackParamList> =
+  NativeStackScreenProps<SwipeStackParamList, T>;
+
 export type ActivitiesStackScreenProps<T extends keyof ActivitiesStackParamList> =
   NativeStackScreenProps<ActivitiesStackParamList, T>;
-
-export type EarningsStackScreenProps<T extends keyof EarningsStackParamList> =
-  NativeStackScreenProps<EarningsStackParamList, T>;
-
-export type NotificationsStackScreenProps<T extends keyof NotificationsStackParamList> =
-  NativeStackScreenProps<NotificationsStackParamList, T>;
 
 export type ProfileStackScreenProps<T extends keyof ProfileStackParamList> =
   NativeStackScreenProps<ProfileStackParamList, T>;

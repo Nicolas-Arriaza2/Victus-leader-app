@@ -49,14 +49,8 @@ export function usePushNotifications() {
     registerForPushNotificationsAsync()
       .then(async (token) => {
         if (!token) return;
-
-        // Guardar localmente para evitar re-registros innecesarios
-        const saved = await storage.getItem('@victus:pushToken');
-        if (saved === token) return; // ya registrado y no cambió
-
         await storage.setItem('@victus:pushToken', token);
-
-        // Enviar token al backend para que pueda enviar pushes reales
+        // Siempre sincronizar con el backend (el endpoint es idempotente)
         await notificationsApi.registerPushToken(token);
       })
       .catch(() => {

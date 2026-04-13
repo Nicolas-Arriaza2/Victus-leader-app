@@ -10,6 +10,7 @@ interface AuthState {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  onboardingCompleted: boolean;
 }
 
 interface AuthContextValue extends AuthState {
@@ -18,6 +19,7 @@ interface AuthContextValue extends AuthState {
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   updateUser: (patch: Partial<User>) => void;
+  completeOnboarding: () => Promise<void>;
 }
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -32,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     token: null,
     isLoading: true,
     isAuthenticated: false,
+    onboardingCompleted: true,
   });
 
   // Restore session on mount
@@ -41,7 +44,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const token = await storage.getToken();
         const user = await storage.getUser<User>();
         if (token && user) {
-          setState({ user, token, isLoading: false, isAuthenticated: true });
+          const onboardingStatus = await storage.getOnboardingCompleted();
+          // null = key not found = existing user (skip onboarding)
+          // 'false' = registered but didn't finish onboarding
+          const onboardingCompleted = onboardingStatus !== false;
+          setState({ user, token, isLoading: false, isAuthenticated: true, onboardingCompleted });
         } else {
           setState((prev) => ({ ...prev, isLoading: false }));
         }
@@ -56,7 +63,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await storage.setToken(auth.access_token);
     const { data: user } = await authApi.me();
     await storage.setUser(user);
-    setState({ user, token: auth.access_token, isLoading: false, isAuthenticated: true });
+    const onboardingStatus = await storage.getOnboardingCompleted();
+    const onboardingCompleted = onboardingStatus !== false;
+    setState({ user, token: auth.access_token, isLoading: false, isAuthenticated: true, onboardingCompleted });
   }, []);
 
   const register = useCallback(async (dto: RegisterDto) => {
@@ -64,12 +73,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await storage.setToken(auth.access_token);
     const { data: user } = await authApi.me();
     await storage.setUser(user);
-    setState({ user, token: auth.access_token, isLoading: false, isAuthenticated: true });
+    await storage.setOnboardingCompleted(false);
+    setState({ user, token: auth.access_token, isLoading: false, isAuthenticated: true, onboardingCompleted: false });
   }, []);
 
   const logout = useCallback(async () => {
     await storage.clear();
-    setState({ user: null, token: null, isLoading: false, isAuthenticated: false });
+    setState({ user: null, token: null, isLoading: false, isAuthenticated: false, onboardingCompleted: true });
   }, []);
 
   const refreshUser = useCallback(async () => {
@@ -93,8 +103,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const completeOnboarding = useCallback(async () => {
+    await storage.setOnboardingCompleted(true);
+    setState((prev) => ({ ...prev, onboardingCompleted: true }));
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, refreshUser, updateUser }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout, refreshUser, updateUser, completeOnboarding }}>
       {children}
     </AuthContext.Provider>
   );

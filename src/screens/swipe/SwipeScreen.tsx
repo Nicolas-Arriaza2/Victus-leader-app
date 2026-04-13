@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { SwipeCandidate, swipesApi } from '../../services/api/swipes';
 import { SwipeStackScreenProps } from '../../navigation/types';
+import { storage } from '../../utils/storage';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.35;
@@ -294,6 +295,13 @@ export function SwipeScreen({ navigation }: SwipeStackScreenProps<'Discover'>) {
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
 
+  // Load saved filters from onboarding / previous session
+  useEffect(() => {
+    storage.getSwipeFilters().then((saved) => {
+      if (saved) setFilters((prev) => ({ ...prev, ...(saved as Partial<Filters>) }));
+    });
+  }, []);
+
   // Request location once on mount
   useEffect(() => {
     (async () => {
@@ -336,6 +344,7 @@ export function SwipeScreen({ navigation }: SwipeStackScreenProps<'Discover'>) {
 
   const applyFilters = (f: Filters) => {
     setFilters(f);
+    storage.setSwipeFilters(f);
     load(f, location);
   };
 

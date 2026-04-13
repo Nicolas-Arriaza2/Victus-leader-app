@@ -8,6 +8,10 @@ export interface UpdateProfileDto {
   bio?: string;
   gender?: string;
   birthDate?: string;
+  genderDetails?: string[];
+  sexualOrientation?: string[];
+  showGender?: boolean;
+  showOrientation?: boolean;
 }
 
 export interface UpdateBankInfoDto {

@@ -113,7 +113,6 @@ export function ProfilePreviewScreen(_props: ProfileStackScreenProps<'ProfilePre
             left: 0,
             right: 0,
             height: 180,
-            background: 'transparent',
           }}
           className="bg-gradient-to-t from-black/80 to-transparent"
         />

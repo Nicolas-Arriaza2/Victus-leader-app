@@ -186,15 +186,17 @@ export function EditProfileScreen({ navigation }: ProfileStackScreenProps<'EditP
       updateUser({
         username: username.trim() || user?.username,
         profile: {
-          ...p,
           firstName:         firstName.trim(),
           lastName:          lastName.trim() || null,
           bio:               bio.trim() || null,
+          avatarUrl:         p?.avatarUrl ?? null,
           gender:            gender,
           genderDetails,
           sexualOrientation: orientation,
           showGender,
           showOrientation,
+          birthDate:         p?.birthDate ?? null,
+          city:              p?.city ?? null,
         },
       });
       refreshUser();

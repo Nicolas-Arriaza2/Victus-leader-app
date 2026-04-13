@@ -11,9 +11,10 @@ import { useAuth } from './src/hooks/useAuth';
 import { usePushNotifications } from './src/hooks/usePushNotifications';
 import { AuthNavigator } from './src/navigation/AuthNavigator';
 import { MainNavigator } from './src/navigation/MainNavigator';
+import { OnboardingNavigator } from './src/navigation/OnboardingNavigator';
 
 function RootNavigator() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, onboardingCompleted } = useAuth();
   usePushNotifications();
 
   if (isLoading) {
@@ -24,7 +25,9 @@ function RootNavigator() {
     );
   }
 
-  return isAuthenticated ? <MainNavigator /> : <AuthNavigator />;
+  if (!isAuthenticated) return <AuthNavigator />;
+  if (!onboardingCompleted) return <OnboardingNavigator />;
+  return <MainNavigator />;
 }
 
 export default function App() {

@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { paymentsApi } from '../../services/api/payments';
 import { LeaderEarnings, TransferSchedule } from '../../types/api';
-import { EarningsStackScreenProps } from '../../navigation/types';
+import { ProfileStackScreenProps } from '../../navigation/types';
 
 function formatCLP(amount: string | number | null | undefined) {
   const n = parseFloat(String(amount ?? 0));
@@ -16,7 +16,7 @@ function formatDate(iso: string) {
   });
 }
 
-export function EarningsScreen(_props: EarningsStackScreenProps<'Earnings'>) {
+export function EarningsScreen(_props: ProfileStackScreenProps<'Earnings'>) {
   const [earnings, setEarnings] = useState<LeaderEarnings | null>(null);
   const [schedule, setSchedule] = useState<TransferSchedule | null>(null);
   const [loading, setLoading] = useState(true);

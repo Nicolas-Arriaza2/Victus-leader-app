@@ -9,6 +9,15 @@ export type AuthStackParamList = {
   Register: undefined;
 };
 
+// ─── Onboarding Stack ─────────────────────────────────────────────────────────
+
+export type OnboardingStackParamList = {
+  OnboardingPhotos: undefined;
+  OnboardingProfile: undefined;
+  OnboardingInterests: undefined;
+  OnboardingSwipe: undefined;
+};
+
 // ─── Swipe Stack ──────────────────────────────────────────────────────────────
 
 export type SwipeStackParamList = {
@@ -56,6 +65,9 @@ export type MainTabParamList = {
 
 export type AuthStackScreenProps<T extends keyof AuthStackParamList> =
   NativeStackScreenProps<AuthStackParamList, T>;
+
+export type OnboardingStackScreenProps<T extends keyof OnboardingStackParamList> =
+  NativeStackScreenProps<OnboardingStackParamList, T>;
 
 export type SwipeStackScreenProps<T extends keyof SwipeStackParamList> =
   NativeStackScreenProps<SwipeStackParamList, T>;

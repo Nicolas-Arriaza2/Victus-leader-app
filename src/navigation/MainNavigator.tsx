@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
+import { WelcomeTourModal } from '../components/WelcomeTourModal';
+import { storage } from '../utils/storage';
 
 import { ActivitiesListScreen } from '../screens/activities/ActivitiesListScreen';
 import { ActivityCreateScreen } from '../screens/activities/ActivityCreateScreen';
@@ -164,9 +166,23 @@ function Tabs() {
 }
 
 export function MainNavigator() {
+  const [showTour, setShowTour] = useState(false);
+
+  useEffect(() => {
+    storage.getTourCompleted().then((done) => {
+      if (!done) setShowTour(true);
+    });
+  }, []);
+
+  const handleDismissTour = () => {
+    setShowTour(false);
+    storage.setTourCompleted(true);
+  };
+
   return (
     <NotificationBadgeProvider>
       <Tabs />
+      <WelcomeTourModal visible={showTour} onDismiss={handleDismissTour} />
     </NotificationBadgeProvider>
   );
 }

@@ -66,7 +66,7 @@ export function LoginScreen({ navigation }: AuthStackScreenProps<'Login'>) {
         </View>
 
         {/* Password */}
-        <View className="mb-6">
+        <View className="mb-2">
           <Text className="text-sm font-medium text-gray-700 mb-1">Contraseña</Text>
           <TextInput
             className="border border-gray-300 rounded-xl px-4 py-3 text-gray-900 text-base bg-white"
@@ -78,6 +78,13 @@ export function LoginScreen({ navigation }: AuthStackScreenProps<'Login'>) {
             returnKeyType="done"
             onSubmitEditing={handleLogin}
           />
+        </View>
+
+        {/* Forgot password */}
+        <View className="items-end mb-5">
+          <Pressable onPress={() => navigation.navigate('ForgotPassword')}>
+            <Text className="text-sm text-secondary-500 font-medium">¿Olvidaste tu contraseña?</Text>
+          </Pressable>
         </View>
 
         {/* Submit */}

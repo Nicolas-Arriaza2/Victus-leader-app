@@ -4,6 +4,7 @@ const TOKEN_KEY = '@victus:token';
 const USER_KEY = '@victus:user';
 const ONBOARDING_KEY = '@victus:onboarding_completed';
 const SWIPE_FILTERS_KEY = '@victus:swipe_filters';
+const TOUR_KEY = '@victus:tour_completed';
 
 export const storage = {
   async getToken(): Promise<string | null> {
@@ -33,7 +34,7 @@ export const storage = {
   },
 
   async clear(): Promise<void> {
-    await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY, ONBOARDING_KEY, SWIPE_FILTERS_KEY]);
+    await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY, ONBOARDING_KEY, SWIPE_FILTERS_KEY, TOUR_KEY]);
   },
 
   async setItem(key: string, value: string): Promise<void> {
@@ -62,5 +63,14 @@ export const storage = {
 
   async setSwipeFilters(filters: object): Promise<void> {
     await AsyncStorage.setItem(SWIPE_FILTERS_KEY, JSON.stringify(filters));
+  },
+
+  async getTourCompleted(): Promise<boolean> {
+    const val = await AsyncStorage.getItem(TOUR_KEY);
+    return val === 'true';
+  },
+
+  async setTourCompleted(value: boolean): Promise<void> {
+    await AsyncStorage.setItem(TOUR_KEY, value ? 'true' : 'false');
   },
 };

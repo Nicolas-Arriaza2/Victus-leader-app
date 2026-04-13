@@ -10,4 +10,10 @@ export const authApi = {
 
   me: () =>
     apiClient.get<User>('/users/me'),
+
+  forgotPassword: (email: string) =>
+    apiClient.post<{ message: string }>('/auth/forgot-password', { email }),
+
+  resetPassword: (email: string, code: string, newPassword: string) =>
+    apiClient.post<AuthResponse>('/auth/reset-password', { email, code, newPassword }),
 };

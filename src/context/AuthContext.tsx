@@ -105,6 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const completeOnboarding = useCallback(async () => {
     await storage.setOnboardingCompleted(true);
+    await storage.setTourCompleted(false); // Show the tour on first enter to MainNavigator
     setState((prev) => ({ ...prev, onboardingCompleted: true }));
   }, []);
 

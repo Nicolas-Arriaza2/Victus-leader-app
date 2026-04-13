@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -12,8 +12,9 @@ import {
   View,
 } from 'react-native';
 import { usersApi } from '../../services/api/users';
+import { interestsApi } from '../../services/api/interests';
 import { useAuth } from '../../hooks/useAuth';
-import { Gender } from '../../types/api';
+import { Gender, Interest } from '../../types/api';
 import { ProfileStackScreenProps } from '../../navigation/types';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -39,6 +40,16 @@ const GENDER_DETAILS: string[] = [
   'Transmasculino',
   'Dos espíritus',
   'No aparece en la lista',
+];
+
+// Hardcoded category order for interests display
+const INTEREST_CATEGORIES: { label: string; slugs: string[] }[] = [
+  { label: '💃 Baile',              slugs: ['salsa', 'bachata', 'tango', 'reggaeton', 'folclore'] },
+  { label: '🏔️ Deporte & Naturaleza', slugs: ['trekking', 'senderismo', 'escalada', 'ciclismo', 'running', 'surf'] },
+  { label: '🎭 Artes & Escena',     slugs: ['teatro', 'comedia', 'fotografia', 'arte', 'cine'] },
+  { label: '🎉 Social & Grupal',    slugs: ['juegos-de-mesa', 'asados', 'voluntariado', 'viajes-grupales'] },
+  { label: '🧘 Bienestar',          slugs: ['yoga', 'fitness', 'meditacion'] },
+  { label: '🍽️ Gastronomía & Música', slugs: ['gastronomia', 'musica'] },
 ];
 
 const ORIENTATIONS: string[] = [
@@ -126,8 +137,20 @@ export function EditProfileScreen({ navigation }: ProfileStackScreenProps<'EditP
   const [orientation,    setOrientation]   = useState<string[]>(p?.sexualOrientation ?? []);
   const [showOrientation,setShowOri]       = useState(p?.showOrientation ?? true);
 
+  // Interests
+  const [allInterests,   setAllInterests]  = useState<Interest[]>([]);
+  const [selectedInterestIds, setSelectedIds] = useState<string[]>(
+    (user as any)?.interests?.map((ui: any) => ui.interestId ?? ui.interest?.id) ?? [],
+  );
+
   const [showDetailsSection, setShowDetailsSection] = useState((p?.genderDetails?.length ?? 0) > 0);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    interestsApi.list()
+      .then(({ data }) => setAllInterests(data))
+      .catch(() => {});
+  }, []);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -137,29 +160,37 @@ export function EditProfileScreen({ navigation }: ProfileStackScreenProps<'EditP
   const toggleOrientation = (v: string) =>
     setOrientation((prev) => prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]);
 
+  const toggleInterest = (id: string) =>
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : prev.length >= 10 ? prev : [...prev, id],
+    );
+
   const handleSave = async () => {
     if (!firstName.trim()) { Alert.alert('Error', 'El nombre es obligatorio.'); return; }
     setSaving(true);
     try {
-      await usersApi.updateProfile({
-        firstName:        firstName.trim(),
-        lastName:         lastName.trim() || undefined,
-        username:         username.trim() || undefined,
-        bio:              bio.trim() || undefined,
-        gender:           gender ?? undefined,
-        genderDetails,
-        sexualOrientation: orientation,
-        showGender,
-        showOrientation,
-      });
+      await Promise.all([
+        usersApi.updateProfile({
+          firstName:         firstName.trim(),
+          lastName:          lastName.trim() || undefined,
+          username:          username.trim() || undefined,
+          bio:               bio.trim() || undefined,
+          gender:            gender ?? undefined,
+          genderDetails,
+          sexualOrientation: orientation,
+          showGender,
+          showOrientation,
+        }),
+        usersApi.setInterests(selectedInterestIds),
+      ]);
       updateUser({
         username: username.trim() || user?.username,
         profile: {
           ...p,
-          firstName:        firstName.trim(),
-          lastName:         lastName.trim() || null,
-          bio:              bio.trim() || null,
-          gender:           gender,
+          firstName:         firstName.trim(),
+          lastName:          lastName.trim() || null,
+          bio:               bio.trim() || null,
+          gender:            gender,
           genderDetails,
           sexualOrientation: orientation,
           showGender,
@@ -299,6 +330,84 @@ export function EditProfileScreen({ navigation }: ProfileStackScreenProps<'EditP
             selected={orientation}
             onToggle={toggleOrientation}
           />
+        </View>
+
+        {/* ── Intereses & Actividades ────────────────────────────────────────── */}
+        <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 16, gap: 14, borderWidth: 1, borderColor: '#f3f4f6' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <SectionHeader title="Intereses y actividades" />
+            <Text style={{ fontSize: 12, color: selectedInterestIds.length >= 10 ? '#ef4444' : '#9ca3af' }}>
+              {selectedInterestIds.length}/10
+            </Text>
+          </View>
+          <Text style={{ fontSize: 12, color: '#9ca3af', marginTop: -10 }}>
+            Elige hasta 10. Aparecerán en tu perfil y mejorarán tus matches.
+          </Text>
+
+          {INTEREST_CATEGORIES.map((cat) => {
+            const catInterests = allInterests.filter((i) => cat.slugs.includes(i.slug));
+            if (catInterests.length === 0) return null;
+            return (
+              <View key={cat.label}>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#6b7280', marginBottom: 8 }}>{cat.label}</Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {catInterests.map((interest) => {
+                    const active = selectedInterestIds.includes(interest.id);
+                    const disabled = !active && selectedInterestIds.length >= 10;
+                    return (
+                      <Pressable
+                        key={interest.id}
+                        onPress={() => !disabled && toggleInterest(interest.id)}
+                        style={{
+                          paddingHorizontal: 14,
+                          paddingVertical: 8,
+                          borderRadius: 24,
+                          borderWidth: 1.5,
+                          borderColor: active ? '#2D7E34' : disabled ? '#f3f4f6' : '#e5e7eb',
+                          backgroundColor: active ? '#f0fdf4' : disabled ? '#fafafa' : '#fff',
+                        }}
+                      >
+                        <Text style={{
+                          fontSize: 13,
+                          fontWeight: '600',
+                          color: active ? '#2D7E34' : disabled ? '#d1d5db' : '#6b7280',
+                        }}>
+                          {interest.name}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            );
+          })}
+
+          {/* Intereses sin categoría */}
+          {(() => {
+            const allCatSlugs = INTEREST_CATEGORIES.flatMap((c) => c.slugs);
+            const uncategorized = allInterests.filter((i) => !allCatSlugs.includes(i.slug));
+            if (uncategorized.length === 0) return null;
+            return (
+              <View>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#6b7280', marginBottom: 8 }}>Otros</Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {uncategorized.map((interest) => {
+                    const active = selectedInterestIds.includes(interest.id);
+                    const disabled = !active && selectedInterestIds.length >= 10;
+                    return (
+                      <Pressable
+                        key={interest.id}
+                        onPress={() => !disabled && toggleInterest(interest.id)}
+                        style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 24, borderWidth: 1.5, borderColor: active ? '#2D7E34' : '#e5e7eb', backgroundColor: active ? '#f0fdf4' : '#fff' }}
+                      >
+                        <Text style={{ fontSize: 13, fontWeight: '600', color: active ? '#2D7E34' : '#6b7280' }}>{interest.name}</Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            );
+          })()}
         </View>
 
         {/* ── Guardar ────────────────────────────────────────────────────────── */}

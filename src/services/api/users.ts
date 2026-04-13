@@ -40,4 +40,7 @@ export const usersApi = {
 
   reorderPhoto: (position: number, newPosition: number) =>
     apiClient.patch(`/users/me/photos/${position}/reorder`, { newPosition }),
+
+  setInterests: (interestIds: string[]) =>
+    apiClient.put('/users/me/interests', { interestIds }),
 };

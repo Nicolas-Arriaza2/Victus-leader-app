@@ -26,6 +26,7 @@ import { SubscribersScreen } from '../screens/subscriptions/SubscribersScreen';
 import { CheckInScreen } from '../screens/sessions/CheckInScreen';
 import { SwipeScreen } from '../screens/swipe/SwipeScreen';
 import { CompatibilityStatsScreen } from '../screens/swipe/CompatibilityStatsScreen';
+import { StatsScreen } from '../screens/stats/StatsScreen';
 import { NotificationBadgeProvider, useNotificationBadge } from '../context/NotificationBadgeContext';
 
 import {
@@ -139,9 +140,10 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 const TAB_ICONS: Record<string, { focused: IoniconsName; unfocused: IoniconsName }> = {
-  SwipeTab:      { focused: 'heart',     unfocused: 'heart-outline' },
-  ActivitiesTab: { focused: 'calendar',  unfocused: 'calendar-outline' },
-  ProfileTab:    { focused: 'person',    unfocused: 'person-outline' },
+  SwipeTab:      { focused: 'heart',       unfocused: 'heart-outline' },
+  ActivitiesTab: { focused: 'calendar',    unfocused: 'calendar-outline' },
+  StatsTab:      { focused: 'bar-chart',   unfocused: 'bar-chart-outline' },
+  ProfileTab:    { focused: 'person',      unfocused: 'person-outline' },
 };
 
 function Tabs() {
@@ -160,6 +162,11 @@ function Tabs() {
     >
       <Tab.Screen name="SwipeTab" component={SwipeStackNavigator} options={{ title: 'Descubrir' }} />
       <Tab.Screen name="ActivitiesTab" component={ActivitiesStackNavigator} options={{ title: 'Actividades' }} />
+      <Tab.Screen
+        name="StatsTab"
+        component={StatsScreen}
+        options={{ title: 'Estadísticas', headerShown: true, headerTitle: 'Estadísticas', headerStyle: { backgroundColor: '#fff' }, headerTintColor: '#2D7E34' }}
+      />
       <Tab.Screen name="ProfileTab" component={ProfileStackNavigator} options={{ title: 'Perfil' }} />
     </Tab.Navigator>
   );

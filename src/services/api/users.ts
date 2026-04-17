@@ -1,6 +1,38 @@
 import { LeaderBankInfo, User, UserPhoto } from '../../types/api';
 import apiClient from './client';
 
+export interface LeaderStats {
+  activities: {
+    total: number;
+    sessions: number;
+    upcoming: number;
+  };
+  enrollments: {
+    total: number;
+    confirmed: number;
+    pending: number;
+    last7days: number;
+    last30days: number;
+    uniqueParticipants: number;
+  };
+  revenue: {
+    total: number;
+    pending: number;
+    transferred: number;
+    last30days: number;
+  };
+  social: {
+    matchesInSessions: number;
+  };
+  topActivities: Array<{
+    id: string;
+    title: string;
+    type: string;
+    enrollmentCount: number;
+    revenue: number;
+  }>;
+}
+
 export interface UpdateProfileDto {
   firstName?: string;
   lastName?: string;
@@ -47,4 +79,7 @@ export const usersApi = {
 
   setInterests: (interestIds: string[]) =>
     apiClient.put('/users/me/interests', { interestIds }),
+
+  leaderStats: () =>
+    apiClient.get<LeaderStats>('/users/me/stats'),
 };

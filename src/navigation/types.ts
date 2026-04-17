@@ -55,11 +55,18 @@ export type ProfileStackParamList = {
   Notifications: undefined;
 };
 
+// ─── Stats Stack ──────────────────────────────────────────────────────────────
+
+export type StatsStackParamList = {
+  Stats: undefined;
+};
+
 // ─── Main Tabs ────────────────────────────────────────────────────────────────
 
 export type MainTabParamList = {
   SwipeTab: undefined;
   ActivitiesTab: undefined;
+  StatsTab: undefined;
   ProfileTab: undefined;
 };
 

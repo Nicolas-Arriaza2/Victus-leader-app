@@ -41,6 +41,7 @@ export type ActivitiesStackParamList = {
   Enrollments: { sessionId: string; sessionDate?: string };
   Subscribers: { activityId: string; activityTitle: string };
   CheckIn: { sessionId: string };
+  Forum: { activityId: string; activityTitle: string };
 };
 
 // ─── Profile Stack ────────────────────────────────────────────────────────────

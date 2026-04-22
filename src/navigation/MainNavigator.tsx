@@ -24,6 +24,7 @@ import { SessionEditScreen } from '../screens/sessions/SessionEditScreen';
 import { SessionListScreen } from '../screens/sessions/SessionListScreen';
 import { SubscribersScreen } from '../screens/subscriptions/SubscribersScreen';
 import { CheckInScreen } from '../screens/sessions/CheckInScreen';
+import { ActivityForumScreen } from '../screens/activities/ActivityForumScreen';
 import { SwipeScreen } from '../screens/swipe/SwipeScreen';
 import { CompatibilityStatsScreen } from '../screens/swipe/CompatibilityStatsScreen';
 import { StatsScreen } from '../screens/stats/StatsScreen';
@@ -74,6 +75,7 @@ function ActivitiesStackNavigator() {
       <ActivitiesStack.Screen name="Enrollments" component={EnrollmentsScreen} options={{ title: 'Inscritos' }} />
       <ActivitiesStack.Screen name="Subscribers" component={SubscribersScreen} options={({ route }) => ({ title: `Suscriptores · ${route.params.activityTitle}` })} />
       <ActivitiesStack.Screen name="CheckIn" component={CheckInScreen} options={{ title: 'Check-in QR', headerShown: false }} />
+      <ActivitiesStack.Screen name="Forum" component={ActivityForumScreen} options={({ route }) => ({ title: `Foro · ${route.params.activityTitle}` })} />
     </ActivitiesStack.Navigator>
   );
 }

@@ -109,6 +109,20 @@ export function ActivityDetailScreen({ route, navigation }: ActivitiesStackScree
         </Pressable>
       )}
 
+      {/* Forum button */}
+      <Pressable
+        className="bg-white border border-gray-200 mx-4 mt-3 rounded-2xl p-4 flex-row items-center justify-between shadow-sm"
+        onPress={() => navigation.navigate('Forum', { activityId, activityTitle: activity.title })}
+      >
+        <View className="flex-row items-center gap-3">
+          <View className="w-9 h-9 rounded-xl bg-primary-50 items-center justify-center">
+            <Ionicons name="chatbubbles-outline" size={18} color="#2D7E34" />
+          </View>
+          <Text className="text-gray-800 font-semibold text-base">Foro de preguntas</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+      </Pressable>
+
       <View className="h-8" />
     </ScrollView>
   );

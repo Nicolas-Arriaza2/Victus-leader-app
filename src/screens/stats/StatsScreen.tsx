@@ -129,8 +129,10 @@ export function StatsScreen() {
   }
 
   const { activities, enrollments, revenue, social, topActivities } = stats;
-  const maxEnroll = topActivities[0]?.enrollmentCount ?? 1;
-  const maxRevenue = topActivities[0]?.revenue ?? 1;
+  const maxEnroll  = Math.max(...topActivities.map((a) => a.enrollmentCount), 1);
+  const maxRevenue = Math.max(...topActivities.map((a) => a.revenue), 1);
+  const maxCompat  = Math.max(...topActivities.map((a) => a.compatibility), 1);
+  const sortedByCompat = [...topActivities].sort((a, b) => b.compatibility - a.compatibility);
 
   // Enrollment donut-style ring values
   const confirmedPct = enrollments.total > 0
@@ -253,22 +255,62 @@ export function StatsScreen() {
         </View>
       </View>
 
-      {/* ── Social card ── */}
-      <View className="flex-row gap-3">
-        <StatCard
-          icon="heart-outline"
-          iconBg="#fce7f3"
-          label="Matches en sesiones"
-          value={String(social.matchesInSessions)}
-          sub="entre participantes"
-        />
-        <StatCard
-          icon="people-circle-outline"
-          iconBg="#ede9fe"
-          label="Participantes únicos"
-          value={String(enrollments.uniqueParticipants)}
-          sub="personas distintas"
-        />
+      {/* ── Social: likes recibidos ── */}
+      <View className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <SectionTitle icon="heart-outline" label="Personas que te dieron Like" />
+
+        {social.totalLikes === 0 ? (
+          <Text className="text-sm text-gray-400 text-center py-2">
+            Aún no has recibido likes en tus sesiones.
+          </Text>
+        ) : (
+          <>
+            <View className="items-center mb-5">
+              <Text className="text-5xl font-bold text-gray-900">{social.totalLikes}</Text>
+              <Text className="text-sm text-gray-400 mt-1">likes recibidos</Text>
+            </View>
+
+            {/* Participantes inscritos */}
+            <View className="mb-3">
+              <View className="flex-row justify-between items-center mb-1.5">
+                <View className="flex-row items-center gap-2">
+                  <View className="w-3 h-3 rounded-full bg-primary-500" />
+                  <Text className="text-sm font-medium text-gray-700">Participantes inscritos</Text>
+                </View>
+                <Text className="text-sm font-bold text-primary-600">{social.likesFromParticipants}</Text>
+              </View>
+              <View className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                <View
+                  className="h-2.5 rounded-full bg-primary-500"
+                  style={{ width: `${social.totalLikes > 0 ? (social.likesFromParticipants / social.totalLikes) * 100 : 0}%` }}
+                />
+              </View>
+              <Text className="text-xs text-gray-400 mt-1">
+                Personas ya inscritas en tus actividades
+              </Text>
+            </View>
+
+            {/* Prospectos */}
+            <View>
+              <View className="flex-row justify-between items-center mb-1.5">
+                <View className="flex-row items-center gap-2">
+                  <View className="w-3 h-3 rounded-full bg-violet-500" />
+                  <Text className="text-sm font-medium text-gray-700">Potenciales participantes</Text>
+                </View>
+                <Text className="text-sm font-bold text-violet-600">{social.likesFromProspects}</Text>
+              </View>
+              <View className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                <View
+                  className="h-2.5 rounded-full bg-violet-500"
+                  style={{ width: `${social.totalLikes > 0 ? (social.likesFromProspects / social.totalLikes) * 100 : 0}%` }}
+                />
+              </View>
+              <Text className="text-xs text-gray-400 mt-1">
+                Personas con intereses afines que aún no se han inscrito
+              </Text>
+            </View>
+          </>
+        )}
       </View>
 
       {/* ── Top activities by enrollment ── */}
@@ -305,6 +347,26 @@ export function StatsScreen() {
                 color="#2764AD"
               />
             ))}
+        </View>
+      )}
+
+      {/* ── Activity compatibility ── */}
+      {sortedByCompat.some((a) => a.compatibility > 0) && (
+        <View className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <SectionTitle icon="sparkles-outline" label="Actividades más afines contigo" />
+          <Text className="text-xs text-gray-400 mb-4 -mt-2">
+            Basado en los likes que recibiste dentro de cada actividad
+          </Text>
+          {sortedByCompat.map((a) => (
+            <BarRow
+              key={a.id}
+              label={a.title}
+              sub={`${a.compatibility} ${a.compatibility === 1 ? 'like' : 'likes'} en sesiones`}
+              value={a.compatibility}
+              max={maxCompat}
+              color="#7c3aed"
+            />
+          ))}
         </View>
       )}
     </ScrollView>

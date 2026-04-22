@@ -22,7 +22,9 @@ export interface LeaderStats {
     last30days: number;
   };
   social: {
-    matchesInSessions: number;
+    totalLikes: number;
+    likesFromParticipants: number;
+    likesFromProspects: number;
   };
   topActivities: Array<{
     id: string;
@@ -30,6 +32,7 @@ export interface LeaderStats {
     type: string;
     enrollmentCount: number;
     revenue: number;
+    compatibility: number;
   }>;
 }
 

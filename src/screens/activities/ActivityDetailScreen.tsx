@@ -29,7 +29,8 @@ export function ActivityDetailScreen({ route, navigation }: ActivitiesStackScree
   const [dashboard, setDashboard] = useState<ActivityDashboard | null>(null);
   const [myEnrollments, setMyEnrollments] = useState<ActivityEnrollment[]>([]);
   const [loading, setLoading]     = useState(true);
-  const [enrollingId, setEnrollingId] = useState<string | null>(null);
+  const [enrollingId, setEnrollingId]   = useState<string | null>(null);
+  const [cancelingId, setCancelingId]   = useState<string | null>(null);
 
   const isOwn = !!user && !!activity && activity.createdBy?.id === user.id;
 
@@ -68,6 +69,32 @@ export function ActivityDetailScreen({ route, navigation }: ActivitiesStackScree
     }
   }, []);
 
+  const confirmCancel = useCallback((enrollmentId: string, sessionId: string) => {
+    Alert.alert(
+      '¿Desinscribirse?',
+      'Biktus no se hace responsable de las devoluciones. Eso se coordina directamente con el líder de la actividad.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Desinscribirme',
+          style: 'destructive',
+          onPress: async () => {
+            setCancelingId(sessionId);
+            try {
+              await enrollmentsApi.cancel(enrollmentId);
+              const { data: enrs } = await enrollmentsApi.mine();
+              setMyEnrollments(enrs);
+            } catch (e: any) {
+              Alert.alert('Error', e?.response?.data?.message ?? 'No se pudo desinscribir');
+            } finally {
+              setCancelingId(null);
+            }
+          },
+        },
+      ],
+    );
+  }, []);
+
   if (loading || !activity) {
     return (
       <View className="flex-1 items-center justify-center bg-cream">
@@ -84,7 +111,8 @@ export function ActivityDetailScreen({ route, navigation }: ActivitiesStackScree
 
   const now = new Date();
   const upcomingSessions = (activity.sessions ?? []).filter((s) => new Date(s.startsAt) > now);
-  const enrolledSessionIds = new Set(myEnrollments.map((e) => e.sessionId));
+  // Map sessionId → enrollmentId so we can cancel by enrollment ID
+  const enrollmentBySession = new Map(myEnrollments.map((e) => [e.sessionId, e.id]));
 
   return (
     <ScrollView className="flex-1 bg-cream">
@@ -243,11 +271,13 @@ export function ActivityDetailScreen({ route, navigation }: ActivitiesStackScree
                 <Text className="text-base font-bold text-gray-900">Próximas sesiones</Text>
               </View>
               {upcomingSessions.map((session) => {
-                const enrolled = enrolledSessionIds.has(session.id);
+                const enrollmentId = enrollmentBySession.get(session.id);
+                const enrolled = !!enrollmentId;
+                const isCanceling = cancelingId === session.id;
                 return (
                   <View
                     key={session.id}
-                    className={`mb-3 pb-3 border-b border-gray-100 last:border-0 last:mb-0 last:pb-0`}
+                    className="mb-3 pb-3 border-b border-gray-100 last:border-0 last:mb-0 last:pb-0"
                   >
                     <Text className="text-sm font-semibold text-gray-800 mb-0.5">
                       {formatDate(session.startsAt)}
@@ -263,10 +293,16 @@ export function ActivityDetailScreen({ route, navigation }: ActivitiesStackScree
                         {session.priceCents ? `$${session.priceCents.toLocaleString('es-CL')}` : 'Gratis'}
                       </Text>
                       {enrolled ? (
-                        <View className="flex-row items-center gap-1 bg-primary-50 px-3 py-1.5 rounded-xl">
-                          <Ionicons name="checkmark-circle" size={15} color="#2D7E34" />
+                        <Pressable
+                          className="flex-row items-center gap-1 bg-primary-50 px-3 py-1.5 rounded-xl"
+                          onPress={() => confirmCancel(enrollmentId!, session.id)}
+                          disabled={isCanceling}
+                        >
+                          {isCanceling
+                            ? <ActivityIndicator size="small" color="#2D7E34" />
+                            : <Ionicons name="checkmark-circle" size={15} color="#2D7E34" />}
                           <Text className="text-xs font-semibold text-primary-600">Inscrito</Text>
-                        </View>
+                        </Pressable>
                       ) : (
                         <Pressable
                           className="bg-primary-500 px-4 py-1.5 rounded-xl"

@@ -35,6 +35,7 @@ export interface User {
   username: string;
   roles: UserRole[];
   profile: UserProfile | null;
+  interests: Array<{ interest: Interest }>;
   createdAt: string;
 }
 
@@ -68,7 +69,13 @@ export interface Activity {
   pricingModel: ActivityPricingModel;
   monthlyPriceCents: number | null;
   createdAt: string;
+  createdBy: {
+    id: string;
+    username: string | null;
+    profile: { firstName: string | null; lastName: string | null } | null;
+  };
   interests: Array<{ interest: Interest }>;
+  sessions?: ActivitySession[];
 }
 
 export interface ActivityDashboard {

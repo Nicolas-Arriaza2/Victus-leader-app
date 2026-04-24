@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { sessionsApi } from '../../services/api/sessions';
 import { ActivitySession, SessionStats } from '../../types/api';
 import { ActivitiesStackScreenProps } from '../../navigation/types';
@@ -16,6 +16,7 @@ export function SessionDetailScreen({ route, navigation }: ActivitiesStackScreen
   const [session, setSession] = useState<ActivitySession | null>(null);
   const [stats, setStats] = useState<SessionStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [notifying, setNotifying] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -125,6 +126,41 @@ export function SessionDetailScreen({ route, navigation }: ActivitiesStackScreen
       >
         <Text className="text-white font-semibold">Escanear QR · Check-in</Text>
         <Ionicons name="qr-code-outline" size={20} color="white" />
+      </Pressable>
+
+      {/* Notify payment reminder */}
+      <Pressable
+        className="bg-white border border-orange-200 mx-4 mt-3 rounded-2xl p-4 flex-row items-center justify-between shadow-sm"
+        disabled={notifying}
+        onPress={async () => {
+          setNotifying(true);
+          try {
+            const { data } = await sessionsApi.notifyPaymentReminder(sessionId);
+            Alert.alert(
+              'Recordatorios enviados',
+              data.notified > 0
+                ? `Se notificó a ${data.notified} ${data.notified === 1 ? 'participante' : 'participantes'} con pago pendiente.`
+                : 'No hay participantes con pago pendiente en esta sesión.',
+            );
+          } catch {
+            Alert.alert('Error', 'No se pudo enviar las notificaciones.');
+          } finally {
+            setNotifying(false);
+          }
+        }}
+      >
+        <View className="flex-row items-center gap-3">
+          <View className="w-9 h-9 rounded-xl bg-orange-50 items-center justify-center">
+            <Ionicons name="notifications-outline" size={18} color="#f97316" />
+          </View>
+          <View>
+            <Text className="text-gray-800 font-semibold">Notificar cobro pendiente</Text>
+            <Text className="text-xs text-gray-400 mt-0.5">Avisa a quienes aún no han pagado</Text>
+          </View>
+        </View>
+        {notifying
+          ? <ActivityIndicator size="small" color="#f97316" />
+          : <Ionicons name="chevron-forward" size={20} color="#d1d5db" />}
       </Pressable>
 
       <View className="h-8" />

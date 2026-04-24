@@ -12,6 +12,7 @@ import {
 import { activitiesApi } from '../../services/api/activities';
 import { Activity } from '../../types/api';
 import { ActivitiesStackScreenProps } from '../../navigation/types';
+import { useAuth } from '../../hooks/useAuth';
 
 const ACTIVITY_TYPE_LABELS: Record<string, string> = {
   trekking: 'Trekking', theater: 'Teatro', dance: 'Danza', fitness: 'Fitness',
@@ -20,6 +21,7 @@ const ACTIVITY_TYPE_LABELS: Record<string, string> = {
 };
 
 export function ActivitiesListScreen({ navigation }: ActivitiesStackScreenProps<'ActivitiesList'>) {
+  const { user } = useAuth();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -27,7 +29,7 @@ export function ActivitiesListScreen({ navigation }: ActivitiesStackScreenProps<
 
   const load = useCallback(async () => {
     try {
-      const { data } = await activitiesApi.mine();
+      const { data } = await activitiesApi.list();
       setActivities(data);
     } catch {
       // ignore
@@ -38,6 +40,11 @@ export function ActivitiesListScreen({ navigation }: ActivitiesStackScreenProps<
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  const myInterestIds = useMemo(
+    () => new Set((user?.interests ?? []).map((i) => i.interest.id)),
+    [user],
+  );
 
   const filtered = useMemo(() => {
     if (!search.trim()) return activities;
@@ -60,7 +67,6 @@ export function ActivitiesListScreen({ navigation }: ActivitiesStackScreenProps<
 
   return (
     <View className="flex-1 bg-cream">
-      {/* Barra de búsqueda */}
       <View className="px-4 pt-3 pb-1">
         <View className="flex-row items-center bg-white border border-gray-200 rounded-xl px-3 gap-2">
           <Ionicons name="search-outline" size={18} color="#9ca3af" />
@@ -91,43 +97,69 @@ export function ActivitiesListScreen({ navigation }: ActivitiesStackScreenProps<
             )}
           </View>
         }
-        renderItem={({ item }) => (
-          <Pressable
-            className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100"
-            onPress={() => navigation.navigate('ActivityDetail', { activityId: item.id })}
-          >
-            <View className="flex-row items-start justify-between">
-              <View className="flex-1">
-                <Text className="text-base font-semibold text-gray-900">{item.title}</Text>
-                <Text className="text-sm text-primary-500 mt-0.5">
-                  {ACTIVITY_TYPE_LABELS[item.type] ?? item.type}
-                </Text>
+        renderItem={({ item }) => {
+          const isOwn = item.createdBy?.id === user?.id;
+          const commonInterests = item.interests.filter((ai) => myInterestIds.has(ai.interest.id));
+
+          return (
+            <Pressable
+              className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100"
+              onPress={() => navigation.navigate('ActivityDetail', { activityId: item.id })}
+            >
+              <View className="flex-row items-start justify-between">
+                <View className="flex-1">
+                  <View className="flex-row items-center gap-2 flex-wrap">
+                    <Text className="text-base font-semibold text-gray-900">{item.title}</Text>
+                    {isOwn && (
+                      <View className="bg-primary-100 px-2 py-0.5 rounded-full flex-row items-center gap-1">
+                        <Ionicons name="shield-checkmark-outline" size={11} color="#2D7E34" />
+                        <Text className="text-xs font-medium text-primary-700">Tu actividad</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text className="text-sm text-primary-500 mt-0.5">
+                    {ACTIVITY_TYPE_LABELS[item.type] ?? item.type}
+                  </Text>
+                </View>
+                <View className={`px-2 py-0.5 rounded-full ${item.isActive ? 'bg-primary-50' : 'bg-gray-100'}`}>
+                  <Text className={`text-xs font-medium ${item.isActive ? 'text-primary-600' : 'text-gray-500'}`}>
+                    {item.isActive ? 'Activa' : 'Inactiva'}
+                  </Text>
+                </View>
               </View>
-              <View className={`px-2 py-0.5 rounded-full ${item.isActive ? 'bg-primary-50' : 'bg-gray-100'}`}>
-                <Text className={`text-xs font-medium ${item.isActive ? 'text-primary-600' : 'text-gray-500'}`}>
-                  {item.isActive ? 'Activa' : 'Inactiva'}
+
+              {item.description ? (
+                <Text className="text-sm text-gray-500 mt-2" numberOfLines={2}>
+                  {item.description}
                 </Text>
-              </View>
-            </View>
-            {item.description ? (
-              <Text className="text-sm text-gray-500 mt-2" numberOfLines={2}>
-                {item.description}
-              </Text>
-            ) : null}
-            {item.interests.length > 0 && (
+              ) : null}
+
               <View className="flex-row flex-wrap gap-1 mt-2">
                 {item.interests.slice(0, 3).map(({ interest }) => (
-                  <View key={interest.id} className="bg-cream px-2 py-0.5 rounded-full border border-gray-200">
-                    <Text className="text-xs text-gray-600">{interest.name}</Text>
+                  <View
+                    key={interest.id}
+                    className={`px-2 py-0.5 rounded-full border ${myInterestIds.has(interest.id) ? 'bg-primary-50 border-primary-200' : 'bg-cream border-gray-200'}`}
+                  >
+                    <Text className={`text-xs ${myInterestIds.has(interest.id) ? 'text-primary-600 font-medium' : 'text-gray-600'}`}>
+                      {interest.name}
+                    </Text>
                   </View>
                 ))}
               </View>
-            )}
-          </Pressable>
-        )}
+
+              {!isOwn && commonInterests.length > 0 && (
+                <View className="flex-row items-center gap-1.5 mt-2">
+                  <Ionicons name="sparkles-outline" size={13} color="#7c3aed" />
+                  <Text className="text-xs text-violet-600 font-medium">
+                    {commonInterests.length} {commonInterests.length === 1 ? 'interés' : 'intereses'} en común
+                  </Text>
+                </View>
+              )}
+            </Pressable>
+          );
+        }}
       />
 
-      {/* FAB */}
       <Pressable
         className="absolute bottom-6 right-6 bg-primary-500 rounded-full w-14 h-14 items-center justify-center shadow-lg"
         onPress={() => navigation.navigate('ActivityCreate')}

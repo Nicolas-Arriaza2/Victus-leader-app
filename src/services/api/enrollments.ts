@@ -2,6 +2,12 @@ import { ActivityEnrollment } from '../../types/api';
 import apiClient from './client';
 
 export const enrollmentsApi = {
+  enroll: (sessionId: string) =>
+    apiClient.post<ActivityEnrollment>('/enrollments', { sessionId }),
+
+  cancel: (enrollmentId: string) =>
+    apiClient.patch<ActivityEnrollment>(`/enrollments/${enrollmentId}/cancel`),
+
   listBySession: (sessionId: string) =>
     apiClient.get<ActivityEnrollment[]>('/enrollments', { params: { sessionId } }),
 

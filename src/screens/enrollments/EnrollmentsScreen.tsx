@@ -50,17 +50,36 @@ export function EnrollmentsScreen({ route }: ActivitiesStackScreenProps<'Enrollm
     }
   };
 
-  const handleTogglePayment = async (enrollment: ActivityEnrollment) => {
+  const handleTogglePayment = (enrollment: ActivityEnrollment) => {
     const isPaid = enrollment.paymentStatus === 'paid';
-    setTogglingId(enrollment.id);
-    try {
-      const { data } = await enrollmentsApi.markPaid(enrollment.id, !isPaid);
-      setEnrollments((prev) => prev.map((e) => (e.id === data.id ? data : e)));
-    } catch {
-      Alert.alert('Error', 'No se pudo actualizar el pago');
-    } finally {
-      setTogglingId(null);
-    }
+    const displayName = enrollment.user?.profile
+      ? `${enrollment.user.profile.firstName ?? ''} ${enrollment.user.profile.lastName ?? ''}`.trim() || enrollment.user?.username
+      : enrollment.user?.username ?? 'este inscrito';
+
+    Alert.alert(
+      isPaid ? 'Marcar como no pagado' : 'Marcar como pagado',
+      isPaid
+        ? `¿Desmarcar el pago de ${displayName}? Esta acción puede deshacerse.`
+        : `¿Confirmar que ${displayName} ya realizó el pago?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: isPaid ? 'Desmarcar' : 'Confirmar pago',
+          style: isPaid ? 'destructive' : 'default',
+          onPress: async () => {
+            setTogglingId(enrollment.id);
+            try {
+              const { data } = await enrollmentsApi.markPaid(enrollment.id, !isPaid);
+              setEnrollments((prev) => prev.map((e) => (e.id === data.id ? data : e)));
+            } catch {
+              Alert.alert('Error', 'No se pudo actualizar el pago');
+            } finally {
+              setTogglingId(null);
+            }
+          },
+        },
+      ],
+    );
   };
 
   const handlePaymentReminder = async () => {
